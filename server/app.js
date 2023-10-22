@@ -123,5 +123,57 @@ app.post("/search-category", async (req, res, next) => {
     res.json(modifiedResult);
 });
 
+app.post("/search-advanced", async (req, res, next) => {
+    const {queryPhrases} = req.body;
+    // create a list of queries for each category from the queyPhrases array
+    let queries = []
+    for (let i = 0; i < queryPhrases.length; i++) {
+        queries.push({
+            match: { [queryPhrases[i].category]: { query: queryPhrases[i].phrase, operator: "AND" } },
+        })
+    }
+
+    // create an object for feilds to highlight
+    let highlightFields = {}
+    for (let i = 0; i < queryPhrases.length; i++) {
+        highlightFields[queryPhrases[i].category] = {}
+    }
+
+    const result = await client.search({
+        index: "metaphors",
+        body: {
+        size: 75,
+        query: {
+            bool: {
+                must:queries
+            },
+        },
+        highlight: {
+            fields: highlightFields,
+            pre_tags: "<b>",
+            post_tags: "</b>",
+        },
+        },
+    });
+    const modifiedHits = result.hits.hits.map((hit) => {
+        const sourceKeys = Object.keys(hit._source);
+        const highlightKeys = Object.keys(hit.highlight);
+
+        sourceKeys.forEach((sourceKey) => {
+        if (highlightKeys.includes(sourceKey)) {
+            hit._source[sourceKey] = hit.highlight[sourceKey][0];
+        }
+        });
+
+        return hit;
+    });
+
+    const modifiedResult = {
+        hits: modifiedHits,
+    };
+    console.log(modifiedResult)
+    res.json(modifiedResult);
+});
+
 // app listen with port
 app.listen(3001, () => console.log("App listening on http://localhost:3001"));
