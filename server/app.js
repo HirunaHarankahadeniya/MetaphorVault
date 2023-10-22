@@ -78,5 +78,50 @@ app.post("/search-all", async (req, res, next) => {
     console.log(modifiedResult)
     res.json(modifiedResult);
 });
+
+app.post("/search-category", async (req, res, next) => {
+    const {category, phrase} = req.body;
+    const result = await client.search({
+        index: "metaphors",
+        body: {
+        size: 75,
+        query: {
+            bool: {
+            must: [
+                {
+                match: { [category]: { query: phrase, operator: "AND" } },
+                },
+            ],
+            },
+        },
+        highlight: {
+            fields: {
+            [category]: {}
+            },
+            pre_tags: "<b>",
+            post_tags: "</b>",
+        },
+        },
+    });
+    const modifiedHits = result.hits.hits.map((hit) => {
+        const sourceKeys = Object.keys(hit._source);
+        const highlightKeys = Object.keys(hit.highlight);
+
+        sourceKeys.forEach((sourceKey) => {
+        if (highlightKeys.includes(sourceKey)) {
+            hit._source[sourceKey] = hit.highlight[sourceKey][0];
+        }
+        });
+
+        return hit;
+    });
+
+    const modifiedResult = {
+        hits: modifiedHits,
+    };
+    console.log(modifiedResult)
+    res.json(modifiedResult);
+});
+
 // app listen with port
 app.listen(3001, () => console.log("App listening on http://localhost:3001"));
