@@ -5,6 +5,7 @@ import { createTheme } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import MultipleSelectCheckmarks from './multiple_select_box';
 import SearchAll from '../api/services/search_all';
+import SearchCategories from '../api/services/search_categories';
 import { async } from 'q';
 
 const theme = createTheme();
@@ -58,14 +59,24 @@ const SearchBar = ({setData}) => {
     };
 
     const handleSearch = async () => {
-        try {
-            const response = await SearchAll(searchTerm)
-            setData(response.data.hits)
-            console.log(response.data.hits)
-        } catch (error) {
-            console.log(error)
+        if (category.length === 0) {
+            try {
+                const response = await SearchAll(searchTerm)
+                setData(response.data.hits)
+                console.log(response.data.hits)
+            } catch (error) {
+                console.log(error)
+            }
         }
-        
+        else {  
+            try {
+                const response = await SearchCategories(searchTerm, category)
+                setData(response.data.hits)
+                console.log(response.data.hits)
+            } catch (error) {
+                console.log(error)
+            }
+        }
         // handle search logic here
     };
 
@@ -102,13 +113,6 @@ const SearchBar = ({setData}) => {
             </Grid>
             <Grid item xs={4}>
 
-            </Grid>
-            <Grid item xs={2} sx={{display:"flex", justifyContent:"flex-start"}}>
-                <FormControlLabel
-                    sx={checkboxStyles}
-                    control={<Checkbox checked={checked} onChange={handleCheckboxChange} size='small'/>}
-                    label={<Typography variant='body2'>Only Metaphores</Typography>}
-                />
             </Grid>
         </Grid>
         </>

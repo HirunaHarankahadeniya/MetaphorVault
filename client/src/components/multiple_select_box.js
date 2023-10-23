@@ -18,17 +18,15 @@ const MenuProps = {
   },
 };
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
+const categories = [
+  'Poem Name',
+  'Poet',
+  'Year',
+  'Line',
+  'Metaphore present or not',
+  'Metaphorical Terms',
+  'Target Domain',
+  'Source Domain'
 ];
 
 export default function MultipleSelectCheckmarks({category, handleCategoryChange}) {
@@ -45,7 +43,7 @@ export default function MultipleSelectCheckmarks({category, handleCategoryChange
           renderValue={(selected) => selected.join(', ')}
           MenuProps={MenuProps}
         >
-          {names.map((name) => (
+          {categories.map((name) => (
             <MenuItem key={name} value={name}>
               <Checkbox checked={category.indexOf(name) > -1} />
               <ListItemText primary={name} />

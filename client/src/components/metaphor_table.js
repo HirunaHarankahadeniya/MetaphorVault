@@ -86,7 +86,7 @@ export default function MetaphorTable({data}) {
         setPage(0);
     };
     return (
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <Paper sx={{ width: '100%', overflow: 'hidden', marginTop:"3rem"}}>
         <TableContainer sx={{ maxHeight: 600 }}>
             <Table stickyHeader aria-label="sticky table">
             <TableHead>
