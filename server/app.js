@@ -79,25 +79,32 @@ app.post("/search-all", async (req, res, next) => {
     res.json(modifiedResult);
 });
 
-app.post("/search-category", async (req, res, next) => {
-    const {category, phrase} = req.body;
+app.post("/search-categories", async (req, res, next) => {
+    const {phrase, categories} = req.body;
+    // create a list of queries for each category from the categories array
+    let queries = []
+    for (let i = 0; i < categories.length; i++) {
+        queries.push({
+            match: { [categories[i]]: { query: phrase, operator: "AND" } },
+        })
+    }
+
+    let highlightFields = {}
+    for (let i = 0; i < categories.length; i++) {
+        highlightFields[categories[i]] = {}
+    }
+
     const result = await client.search({
         index: "metaphors",
         body: {
         size: 75,
         query: {
             bool: {
-            must: [
-                {
-                match: { [category]: { query: phrase, operator: "AND" } },
-                },
-            ],
+            must: queries
             },
         },
         highlight: {
-            fields: {
-            [category]: {}
-            },
+            fields: highlightFields,
             pre_tags: "<b>",
             post_tags: "</b>",
         },
